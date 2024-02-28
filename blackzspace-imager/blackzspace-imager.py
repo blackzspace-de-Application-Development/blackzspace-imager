@@ -137,7 +137,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         
     def flash(self):
         target = self.combobox_FLash_device.currentText()
-        xoc = subprocess.run("sudo dd if=" + self.flash_Image_Path.text() + " of=" + target.replace("\n", "") + "bs=32M, conv=fsync", shell=True, stdout=subprocess.PIPE)
+        xoc = subprocess.run("sudo dd if='" + self.flash_Image_Path.text() + "' of=" + target.replace("\n", "") + "bs=32M, conv=fsync", shell=True, stdout=subprocess.PIPE)
         print(xoc.stdout)    
         
         
