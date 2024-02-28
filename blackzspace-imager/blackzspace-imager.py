@@ -60,6 +60,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         
         self.scan_Button.clicked.connect(self.get_devs)
         
+        self.load_flash_Image_Button.clicked.connect(self.load_flashImage)
+        
+        self.flash_device_scan_Button.clicked.connect(self.get_flashdevs)
+        
+        self.flash_Button.clicked.connect(self.flash)
         
         
         
@@ -82,12 +87,27 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             
         
         
+    def get_flashdevs(self):
+        proc = subprocess.run(["lsblk -o NAME -nl"], shell=True, stdout=subprocess.PIPE)
+        with open(devices_tree_list_dir + "devices.tree", "w") as f:
+            f.write(proc.stdout.decode("utf-8"))
+            f.close()
+            
+        print(proc.stdout)
+       
+        with open(devices_tree_list_dir + "devices.tree", "r") as f:
+            xs = f.readlines()
+            f.close()
+            
+        for readline in xs:
+            self.consoleLog.append("Detected : " + readline)
+            self.combobox_FLash_device.addItem("/dev/" + readline)
+            
+    
 
+    
         
-        
-        
-        
-        
+
     def open_file_dialog(self):
         filename, ok = QFileDialog.getSaveFileName(
             self,
@@ -103,6 +123,22 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             file.close()
             
             
+    def load_flashImage(self):
+        filename, _ = QFileDialog.getOpenFileName(
+        self,
+        "Select a File",
+        "/root", 
+        "Images (*.img *.tar.gz)"
+    )
+        if filename:
+            path = Path(filename)
+            self.flash_Image_Path.setText(str(path))
+            
+        
+    def flash(self):
+        target = self.combobox_FLash_device.currentText()
+        xoc = subprocess.run("sudo dd if=" + self.flash_Image_Path.text() + " of=" + target.replace("\n", "") + "bs=32M, conv=fsync", shell=True, stdout=subprocess.PIPE)
+        print(xoc.stdout)    
         
         
         
